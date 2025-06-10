@@ -7,17 +7,19 @@ export default {
     description: 'obter alunos',
     arguments: {
         seconds: "number",
+        host: "string"
     },
 
-    handle: async function () {
-
-
+    handle: async function (args) {
+        // Use o host fornecido como argumento ou o padrão para Docker
+        const baseUrl = args.host ? `http://${args.host}` : 'http://nginx-aula-14-tf-container';
+        
         const data = new URLSearchParams();
         data.append('email', 'user1@example.com');
         data.append('senha', '123456');
 
         try {
-            const response = await axios.post('http://localhost:8080/login', data, {
+            const response = await axios.post(`${baseUrl}/login`, data, {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 }
@@ -37,7 +39,7 @@ export default {
             });
 
             while (hasMore) {
-                const alunosResponse = await axios.get(`http://localhost:8080/api/alunos?limit=${limit}&offset=${offset}`, {
+                const alunosResponse = await axios.get(`${baseUrl}/api/alunos?limit=${limit}&offset=${offset}`, {
                     headers: {
                         'Authorization': `Bearer ${tokenData.token}`
                     }
@@ -62,7 +64,5 @@ export default {
             console.error('Erro na requisição:', error.response?.data || error.message);
             return;
         }
-
-
     }
 }
