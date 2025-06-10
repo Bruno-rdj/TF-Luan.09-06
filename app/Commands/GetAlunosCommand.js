@@ -29,13 +29,33 @@ export default {
 
             let limit = 10;
             let offset = 0;
-
+            let hasMore = true;
+            
             const table = new CliTable3({
                 head: ['Nome', 'Materias'],
-                colWidths: [20, 20]
-            })
+                colWidths: [20, 50]
+            });
 
-            /** Codar Aqui */
+            while (hasMore) {
+                const alunosResponse = await axios.get(`http://localhost:8080/api/alunos?limit=${limit}&offset=${offset}`, {
+                    headers: {
+                        'Authorization': `Bearer ${tokenData.token}`
+                    }
+                });
+
+                const alunosData = alunosResponse.data;
+                
+                alunosData.rows.forEach(aluno => {
+                    const materias = aluno.materias.map(materia => materia.nome).join(', ');
+                    table.push([aluno.nome, materias]);
+                });
+
+                if (alunosData.next !== null) {
+                    offset = alunosData.next;
+                } else {
+                    hasMore = false;
+                }
+            }
 
             console.log(table.toString());
         } catch (error) {
